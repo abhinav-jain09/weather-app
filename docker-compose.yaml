@@ -1,0 +1,27 @@
+version: "2.0"
+services:
+  mysql:
+    image: weather-db:0.0.1-SNAPSHOT
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=lalamata#200
+    container_name: mysql
+
+  weather-app:
+    image: weather-app:0.0.1-SNAPSHOT
+    restart: always
+    ports:
+      - "8080:8080"
+    links:
+      - mysql
+    environment:
+      - database-host=mysql
+      - SPRING_PROFILES_ACTIVE=${denv}
+    container_name: weather-app
+
+  soupui:
+    image: soupui:0.0.1-SNAPSHOT
+    ports:
+      - "8089:8089"
+    container_name: soupui

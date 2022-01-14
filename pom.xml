@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.6.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.assignment</groupId>
+    <artifactId>coding-dojo-spring-boot</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>weather-app</name>
+    <description>Spring Boot Coding Dojo</description>
+
+    <properties>
+        <java.version>8</java.version>
+        <image.name>weather-app</image.name>
+        <resources.dir>${project.basedir}/src/main/resources</resources.dir>
+        <assembly.extract.dir>${project.build.directory}/assembly</assembly.extract.dir>
+        <image.name.db>weather-db</image.name.db>
+        <image.name.soupui>soupui</image.name.soupui>
+        <springfox.swagger.version>2.9.2</springfox.swagger.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/junit/junit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>2.23.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.4</version>
+        </dependency>
+        <!-- Swagger -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox.swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-bean-validators</artifactId>
+            <version>${springfox.swagger.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.20</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <version>3.10.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-client-java</artifactId>
+            <version>3.10.8</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>weather-docker</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+
+                    <annotationProcessors>
+                        <annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+                    <changeSetAuthor>Abhinav Jain</changeSetAuthor>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>local</id>
+            <properties>
+                <activatedProperties>local</activatedProperties>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>test</id>
+            <properties>
+                <activatedProperties>test</activatedProperties>
+            </properties>
+        </profile>
+        <profile>
+            <id>accept</id>
+            <properties>
+                <activatedProperties>acc</activatedProperties>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <activatedProperties>prod</activatedProperties>
+            </properties>
+        </profile>
+        <profile>
+            <id>apptest</id>
+            <properties>
+                <activatedProperties>apptest</activatedProperties>
+            </properties>
+        </profile>
+        <profile>
+            <id>docker</id>
+            <activation>
+                <file>
+                    <exists>Dockerfile</exists>
+                </file>
+                <property>
+                    <name>env</name>
+                    <value>docker</value>
+                </property>
+                </activation>
+                <build>
+                    <plugins>
+                        <plugin>
+                            <groupId>io.fabric8</groupId>
+                            <artifactId>docker-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>docker-build</id>
+                                    <goals>
+                                        <goal>build</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <verbose>true</verbose>
+                                <images>
+                                    <image>
+                                        <name>${image.name}:%v</name>
+                                        <build>
+                                            <dockerFileDir>${project.basedir}</dockerFileDir>
+                                            <filter>@</filter>
+                                            <tags>
+                                                <!--suppress MavenModelInspection -->
+                                                <tag>${project.version}</tag>
+                                                <!--suppress MavenModelInspection -->
+                                                <tag>${docker.tag.version}</tag>
+                                            </tags>
+                                        </build>
+                                    </image>
+                                    <image>
+                                        <!--suppress MavenModelInspection -->
+                                        <name>${image.name.db}:%v</name>
+                                        <!-- <registry>${docker.registry}</registry>-->
+                                        <build>
+                                            <dockerFileDir>${project.basedir}/src/main/dockerfiles/db</dockerFileDir>
+                                            <filter>@</filter>
+                                            <!-- <assembly>
+                                            <descriptor>assembly.xml</descriptor>
+                                            </assembly>-->
+                                            <tags>
+                                                <!--suppress MavenModelInspection -->
+                                                <tag>${project.version}</tag>
+                                                <!--suppress MavenModelInspection -->
+                                                <tag>${docker.tag.version}</tag>
+                                            </tags>
+                                        </build>
+                                    </image>
+
+
+                                    <image>
+                                        <!--suppress MavenModelInspection -->
+                                        <name>${image.name.soupui}:%v</name>
+                                        <!-- <registry>${docker.registry}</registry>-->
+                                        <build>
+                                            <dockerFileDir>${project.basedir}/src/main/dockerfiles/mockserver
+                                            </dockerFileDir>
+                                            <filter>@</filter>
+                                            <!-- <assembly>
+                                            <descriptor>assembly.xml</descriptor>
+                                            </assembly>-->
+                                            <tags>
+                                                <!--suppress MavenModelInspection -->
+                                                <tag>${project.version}</tag>
+                                                <!--suppress MavenModelInspection -->
+                                                <tag>${docker.tag.version}</tag>
+                                            </tags>
+                                        </build>
+                                    </image>
+
+
+                                </images>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </build>
+            </profile>
+        </profiles>
+
+
+</project>
