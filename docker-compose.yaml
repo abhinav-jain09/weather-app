@@ -1,27 +1,43 @@
-version: "2.0"
+version: "3.9"
+
 services:
   mysql:
-    image: weather-db:0.0.1-SNAPSHOT
+    image: mysql:8.0  # ✅ Use official MySQL image
+    container_name: mysql
+    restart: always
     ports:
       - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=lalamata#200
-    container_name: mysql
+      - MYSQL_DATABASE=weather_db
+      - MYSQL_USER=weather_user
+      - MYSQL_PASSWORD=weather_pass
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   weather-app:
+    build: .  # ✅ Build the weather app from the current directory
     image: weather-app:0.0.1-SNAPSHOT
+    container_name: weather-app
     restart: always
     ports:
       - "8080:8080"
-    links:
-      - mysql
+    depends_on:
+      mysql:
+        condition: service_healthy  # ✅ Works correctly in Compose 3.9+
     environment:
-      - database-host=mysql
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/weather_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&allowMultiQueries=true
+      - SPRING_DATASOURCE_USERNAME=weather_user
+      - SPRING_DATASOURCE_PASSWORD=weather_pass
       - SPRING_PROFILES_ACTIVE=${denv}
-    container_name: weather-app
 
   soupui:
-    image: soupui:0.0.1-SNAPSHOT
+    image: smartbear/soapuios-testrunner:latest
+    container_name: soupui
+    restart: always
     ports:
       - "8089:8089"
-    container_name: soupui
